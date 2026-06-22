@@ -6,7 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "localmind"
 version = "0.1.0"
 description = "Understand your hardware and find the best local AI models for your machine"
-license = {text = "MIT"}
+readme = "README.md"
+license = "MIT"
 requires-python = ">=3.11"
 authors = [
     {name = "Manish Tiwari", email = "manish.tiwari.09@zohomail.in"}
