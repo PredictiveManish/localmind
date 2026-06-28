@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/localmind?color=3f51b5&style=flat-square)](https://pypi.org/project/localmind/)
 [![Python](https://img.shields.io/pypi/pyversions/localmind?color=3f51b5&style=flat-square)](https://pypi.org/project/localmind/)
-[![License](https://img.shields.io/pypi/l/localmind?color=3f51b5&style=flat-square)](https://github.com/yourusername/localmind/blob/main/LICENSE)
+[![License](https://img.shields.io/pypi/l/localmind?color=3f51b5&style=flat-square)](https://github.com/predictivemanish/localmind/blob/main/LICENSE)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/localmind?color=3f51b5&style=flat-square)](https://pypi.org/project/localmind/)
 
 ---
