@@ -23,6 +23,8 @@ class GPUInfo(BaseModel):
     name: str
     vram_mb: int
     driver_version: Optional[str] = None
+    vendor: str = ""  # NVIDIA, AMD, Intel, Apple
+    is_unified_memory: bool = False  # macOS Apple Silicon or Intel iGPU sharing RAM
 
 
 class StorageInfo(BaseModel):

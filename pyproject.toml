@@ -34,6 +34,12 @@ dependencies = [
     "gputil>=1.4; sys_platform != 'darwin'",   # optional, only where nvidia is common
 ]
 
+[project.urls]
+Homepage = "https://github.com/predictivemanish/localmind"
+Documentation = "https://predictivemanish.github.io/localmind"
+Repository = "https://github.com/predictivemanish/localmind"
+Issues = "https://github.com/predictivemanish/localmind/issues"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",

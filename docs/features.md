@@ -2,17 +2,24 @@
 
 ## Hardware Detection
 
-LocalMind uses `psutil` for cross-platform system information and `GPUtil` for NVIDIA GPU detection.
+LocalMind uses `psutil` for cross-platform system information and multi-vendor GPU detection for NVIDIA, AMD, Intel, and Apple Silicon.
 
 | Component | Library | Details |
 |---|---|---|
 | **CPU** | `psutil` | Name, physical/logical cores, max frequency |
 | **RAM** | `psutil` | Total and available memory in GB |
-| **GPU** | `GPUtil` | Name, VRAM in MB, driver version (NVIDIA only) |
+| **GPU** | GPUtil + WMI + sysfs + system_profiler | Name, VRAM, vendor (NVIDIA/AMD/Intel/Apple), unified memory detection |
 | **Disk** | `psutil` | Total, used, and free space on root partition |
 | **OS** | `platform` | System name and release version |
 
-`GPUtil` is installed on Windows and Linux but excluded on macOS (where it provides no value). GPU detection is wrapped in a try/except — if no GPU is found, the report simply shows "None detected".
+GPU detection works across all platforms:
+
+- **NVIDIA**: GPUtil on Windows and Linux
+- **AMD**: WMI on Windows, sysfs + rocm-smi on Linux
+- **Intel**: WMI on Windows, sysfs on Linux (includes integrated GPUs with unified memory)
+- **Apple Silicon**: `system_profiler` on macOS (detects M1/M2/M3 with unified memory)
+
+Unified memory systems (Apple Silicon, Intel iGPUs) are classified using more lenient thresholds since the GPU can access all system RAM.
 
 <!-- screenshot: lm hardware output -->
 
@@ -27,6 +34,8 @@ Once hardware is scanned, the classifier maps your specs to a performance tier. 
 | Midrange | 16 GB | 4 GB | 7B–14B |
 | Entry | 8 GB | 2 GB | 4B–8B |
 | Tiny | — | — | 1B–4B |
+
+For **Apple Silicon** and **Intel integrated GPUs** with unified memory, the classifier uses more lenient thresholds since the GPU can access all system RAM. A MacBook Pro M2 with 32GB unified memory is classified as High-End, while a Windows PC with 32GB RAM but no GPU would be classified as Entry.
 
 The classifier iterates from highest to lowest tier and picks the first one where your hardware meets both RAM and VRAM thresholds. If both are met for multiple tiers, the higher tier wins.
 
@@ -100,8 +109,8 @@ A Rich progress bar shows download progress during installation.
 ```
 localmind/
 ├── cli.py               # Typer CLI — all commands
-├── hardware.py           # psutil + GPUtil wrappers
-├── classifier.py         # RAM/VRAM → tier mapping
+├── hardware.py           # psutil + multi-vendor GPU detection (NVIDIA, AMD, Intel, Apple)
+├── classifier.py         # RAM/VRAM → tier mapping (with unified memory support)
 ├── recommendations.py    # General + task-specific logic
 ├── doctor.py             # Aggregates everything into a report
 ├── ollama_api.py         # Search API, local ollama calls, auto-install

@@ -1,4 +1,54 @@
+# Byte-compiled / optimized / bytecode
 __pycache__/
-*.egg-info/
+*.py[cod]
+*$py.class
+*.so
+
+# Build artifacts
+build/
 dist/
+*.egg-info/
+*.egg
+*.whl
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MkDocs build output
+site/
+
+# Pytest cache
 .pytest_cache/
+
+# Generated/auxiliary files
+repomix-output.xml
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints

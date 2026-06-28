@@ -256,7 +256,10 @@ def hardware():
 
     if hw.gpus:
         for gpu in hw.gpus:
-            table.add_row("GPU", f"{gpu.name} ({gpu.vram_mb} MB VRAM)")
+            vram_display = f"{gpu.vram_mb} MB VRAM"
+            vendor_display = f" ({gpu.vendor})" if gpu.vendor else ""
+            unified_display = " [Unified Memory]" if gpu.is_unified_memory else ""
+            table.add_row("GPU", f"{gpu.name}{vendor_display} ({vram_display}){unified_display}")
     else:
         table.add_row("GPU", "None detected")
 
@@ -313,7 +316,9 @@ def doctor():
     console.print(f"RAM: {hw.ram.total_gb} GB total, {hw.ram.available_gb} GB available")
     if hw.gpus:
         for gpu in hw.gpus:
-            console.print(f"GPU: {gpu.name} ({gpu.vram_mb} MB)")
+            vendor_str = f" ({gpu.vendor})" if gpu.vendor else ""
+            unified_str = " [Unified Memory]" if gpu.is_unified_memory else ""
+            console.print(f"GPU: {gpu.name}{vendor_str} ({gpu.vram_mb} MB){unified_str}")
     else:
         console.print("GPU: None")
     console.print(f"Storage: {hw.storage.free_gb} GB free out of {hw.storage.total_gb} GB")

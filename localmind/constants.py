@@ -8,6 +8,16 @@ TIER_THRESHOLDS = {
     "Tiny":       {"min_ram": 0,  "min_vram": 0},  # fallback
 }
 
+# For Apple Silicon and Intel iGPUs with unified memory, VRAM = available system RAM
+# These tiers are more lenient since the GPU can access all system memory
+TIER_THRESHOLDS_UNIFIED = {
+    "Enthusiast": {"min_ram": 48, "min_vram": 0},   # M2/M3 Max with 64-96GB RAM
+    "High-End":   {"min_ram": 32, "min_vram": 0},   # M2/M3 Pro with 32GB RAM
+    "Midrange":   {"min_ram": 16, "min_vram": 0},   # M1/M2/M3 base with 16GB RAM
+    "Entry":      {"min_ram": 8,  "min_vram": 0},   # Base MacBook with 8GB RAM
+    "Tiny":       {"min_ram": 0,  "min_vram": 0},   # fallback
+}
+
 TIER_PARAM_RANGES = {
     "Tiny":       "1B-4B",
     "Entry":      "4B-8B",

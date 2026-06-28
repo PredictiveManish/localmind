@@ -5,7 +5,7 @@ repo_url: https://github.com/predictivemanish/localmind
 repo_name: predictivemanish/localmind
 
 theme:
-  name: mkdocs
+  name: material
   primary: indigo
   accent: deep purple
   logo: img/logo.svg

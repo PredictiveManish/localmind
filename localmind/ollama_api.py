@@ -7,6 +7,7 @@ import shutil
 import platform
 import time
 import re
+import urllib.parse
 import requests
 from typing import List, Optional
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn, SpinnerColumn
@@ -138,7 +139,7 @@ def search_ollama_library(query: str) -> List[OllamaModel]:
     Search the Ollama model library using the public API.
     Returns a list of matching models (basic metadata).
     """
-    url = f"https://ollama.com/api/library?q={query}&sort=popular"
+    url = f"https://ollama.com/api/library?q={urllib.parse.quote(query)}&sort=popular"
     try:
         resp = requests.get(url, timeout=10)
         resp.raise_for_status()
@@ -148,13 +149,27 @@ def search_ollama_library(query: str) -> List[OllamaModel]:
         return []
 
     models = []
-    for item in data.get("models", []):
-        models.append(OllamaModel(
-            name=item.get("name", ""),
-            description=item.get("description", ""),
-            pulls=item.get("pulls"),
-            tags=item.get("tags", []),
-        ))
+    models_data = data.get("models", {})
+    if isinstance(models_data, dict):
+        for model_name, model_info in models_data.items():
+            if isinstance(model_info, dict):
+                models.append(OllamaModel(
+                    name=model_info.get("name", model_name),
+                    description=model_info.get("description", ""),
+                    pulls=model_info.get("pulls"),
+                    tags=model_info.get("tags", []),
+                    size=model_info.get("model_size"),
+                ))
+    elif isinstance(models_data, list):
+        for item in models_data:
+            if isinstance(item, dict):
+                models.append(OllamaModel(
+                    name=item.get("name", ""),
+                    description=item.get("description", ""),
+                    pulls=item.get("pulls"),
+                    tags=item.get("tags", []),
+                    size=item.get("model_size"),
+                ))
     return models
 
 
@@ -189,6 +204,7 @@ def pull_model(model_name: str) -> None:
     _console.print(f"Pulling model [bold]{model_name}[/bold]…")
     _ensure_ollama()   # ← Auto‑install Ollama if needed
 
+    proc = None
     try:
         proc = subprocess.Popen(
             ["ollama", "pull", model_name],
@@ -206,4 +222,5 @@ def pull_model(model_name: str) -> None:
         sys.exit(1)
     except KeyboardInterrupt:
         log_warning("Download interrupted by user.")
-        proc.terminate()
+        if proc is not None:
+            proc.terminate()
