@@ -3,20 +3,19 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "localmind"
-version = "0.1.0"
-description = "Understand your hardware and find the best local AI models for your machine"
+name = "local-mind"
+version = "0.2.0"
+description = "Hardware-aware local AI model recommender. Scan your machine, find the best models that fit your GPU/CPU/RAM, and chat with them via Ollama."
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
     {name = "Manish Tiwari", email = "manish.tiwari.09@zohomail.in"}
 ]
 keywords = ["ai", "llm", "local", "hardware", "recommender"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",

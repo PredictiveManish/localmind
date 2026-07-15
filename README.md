@@ -25,6 +25,13 @@ All commands work with `lm` (short) or `localmind` (long). Pick your poison.
 | `lm recommend writing` | Suggests models good at writing/content for your hardware |
 | `lm recommend reasoning` | Suggests models good at logic/analysis for your hardware |
 | `lm doctor` | Full diagnostic — hardware, tier, warnings, recommendations |
+| `lm chat llama3:8b` | Interactive streaming chat with an Ollama model. Use `-s`, `-t`, `-k`, `-p` to set system prompt, temperature, top_k, top_p. Add `--show-vram` to see VRAM estimates before starting |
+| `lm compare llama3:8b mistral:7b` | Side-by-side model comparison (VRAM, size, fits?) |
+| `lm health` | Ollama server health check (running? VRAM usage? models?). Use `--verbose` for detailed hardware and model info |
+| `lm models list` | List all locally pulled models with sizes and quantization |
+| `lm models delete <model>` | Delete a local model and free disk space |
+| `lm models fit` | Show which local models fit your hardware |
+| `lm models disk` | Show disk usage breakdown by model |
 | `lm search llama` | Searches the Ollama library for models matching your query |
 | `lm info llama3:8b` | Shows metadata for a model you've already downloaded |
 | `lm download llama3:8b` | Pulls a model (auto-installs Ollama if you don't have it) |
@@ -70,13 +77,24 @@ Once it knows your tier, it suggests models. Two modes:
 
 The model lists are curated in `constants.py`. They're not randomly generated — they're based on what the community has found works well for each task.
 
-### Step 4: Ollama integration
+### Step 4: VRAM estimation
+
+For every model, LocalMind calculates exactly how much VRAM and RAM it needs at every quantization level (FP16 through Q2_K). This uses quantization multipliers (bytes per parameter), context overhead per model family, and context length scaling. The result is a breakdown table showing which quantization fits your hardware.
+
+### Step 5: Ollama integration
 
 LocalMind doesn't just tell you what to run — it helps you get there:
 
 - `lm search <query>` queries the Ollama library API and shows you matching models sorted by popularity
 - `lm download <model>` runs `ollama pull` and streams progress to your terminal. If you don't have Ollama installed? It downloads and installs it for you (Windows PowerShell, macOS/Linux shell scripts)
 - `lm info <model>` shows metadata for locally pulled models (architecture, parameters, quantization info)
+- `lm chat <model>` starts an interactive streaming chat session with conversation history, system prompts, and parameter controls
+- `lm compare <model_a> <model_b>` compares two models side by side on VRAM needs, size, popularity, and fit
+- `lm health` checks Ollama server health — is it running? how much VRAM is used? what models are loaded?
+- `lm models list` — list all pulled models with sizes and quantization
+- `lm models delete <model>` — remove a model and free disk space
+- `lm models fit` — see which of your local models fit your hardware
+- `lm models disk` — disk usage breakdown by model
 
 ---
 
@@ -92,6 +110,11 @@ localmind/
 ├── ollama_api.py         # Ollama library search + local CLI calls + auto-install
 ├── models.py             # Pydantic data structures (type-safe, validated)
 ├── constants.py          # Tier thresholds, model recommendation tables
+├── vram.py               # VRAM estimation engine (quantization math, 10 levels)
+├── chat.py               # Interactive CLI chat with streaming output
+├── compare.py            # Side-by-side model comparison
+├── health.py             # Ollama server health check
+├── model_mgmt.py         # Local model management (list, delete, fit, disk)
 └── utils.py              # Warnings, logging helpers
 ```
 
@@ -109,6 +132,30 @@ Because choosing a local AI model shouldn't require reading benchmark tables, ca
 4. Which models are best for what you want to do (code, writing, reasoning)
 
 LocalMind does all four.
+
+---
+
+# Chat with a model interactively
+
+```bash
+lm chat llama3:8b
+```
+
+During a chat session, you can use these commands:
+
+| Command | What it does |
+|---|---|
+| `/quit`, `/exit`, `/q` | Exit the chat session |
+| `/history` | Clear conversation history (keeps system prompt) |
+| `/vram` | Show VRAM estimates for the current model |
+| `/model <name>` | Switch to a different model (resets conversation) |
+| `/system <prompt>` | Change the system prompt mid-session |
+
+You can also configure the chat with flags:
+
+```bash
+lm chat llama3:8b -s "You are a helpful coding assistant" -t 0.7 -k 50 -p 0.9 --show-vram
+```
 
 ---
 
@@ -135,6 +182,24 @@ lm download codellama:13b
 
 # Check metadata on a model you already pulled
 lm info codellama:13b
+
+# Chat with a model interactively
+lm chat llama3:8b
+
+# Compare two models side by side
+lm compare llama3:8b mistral:7b
+
+# Check Ollama server health
+lm health
+
+# List your local models
+lm models list
+
+# See which models fit your hardware
+lm models fit
+
+# Delete a model to free space
+lm models delete codellama:13b
 ```
 
 ---

@@ -66,9 +66,54 @@ class DoctorReport(BaseModel):
 
 
 class OllamaModel(BaseModel):
-    """Metadata for an Ollama model."""
+    """Metadata for an Ollama library model (remote)."""
     name: str
     description: str
     pulls: Optional[int] = None
     tags: List[str] = Field(default_factory=list)
     size: Optional[str] = None
+
+
+class OllamaLocalModel(BaseModel):
+    """A model pulled locally on this machine."""
+    name: str
+    size: int = 0  # bytes
+    digest: str = ""
+    modified_at: str = ""
+    parameter_size: str = ""
+    quantization_level: str = ""
+    format: str = ""
+    family: str = ""
+    families: List[str] = Field(default_factory=list)
+
+
+class OllamaRunningModel(BaseModel):
+    """A model currently loaded in Ollama's memory."""
+    model: str = ""
+    name: str = ""
+    digest: str = ""
+    model_size: int = 0
+    project_size: int = 0
+    load_status: str = ""
+    prompt_eval_count: int = 0
+    prompt_eval_duration: int = 0
+    eval_count: int = 0
+    eval_duration: int = 0
+
+
+class OllamaChatMessage(BaseModel):
+    """A single message in a chat conversation."""
+    role: str  # "user", "assistant", or "system"
+    content: str
+
+
+class VRAMEstimate(BaseModel):
+    """Estimated VRAM/disk usage for a model at a given quantization."""
+    model_name: str
+    quantization: str  # Q4_0, Q5_K_M, Q8_0, FP16, etc.
+    size_gb: float
+    vram_gb: float  # how much GPU VRAM needed
+    ram_gb: float  # how much system RAM needed (if offloading to CPU)
+    params_billion: float  # parameter count in billions
+    fits_in_vram: bool  # whether it fits in available VRAM
+    fits_in_ram: bool  # whether it fits in available system RAM

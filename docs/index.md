@@ -11,12 +11,11 @@
 
 ## Why LocalMind?
 
-Running large language models locally is exciting — but figuring out *which models your hardware can actually handle* is a guessing game. LocalMind takes the guesswork out:
+Here's the problem: you want to run a local LLM. You go to Ollama's library, pick a model, download it, and then… your laptop sounds like a jet engine. Or it crashes. Or it runs at 0.2 tokens per second.
 
-- **Scan your system** — CPU, RAM, GPU (with VRAM), and disk space in one command.
-- **Instant tier classification** — see exactly where your machine sits, from Tiny to Enthusiast.
-- **Smart model recommendations** — get model names and parameter sizes that will run well on *your* hardware.
-- **Ollama integration** — search, inspect, and download models from the Ollama library without leaving your terminal.
+LocalMind solves this. Before you download anything, it scans your hardware, tells you what tier your machine is in, and recommends models that will actually run well on *your* specific setup.
+
+It works across **Windows, macOS, and Linux**. It detects **NVIDIA, AMD, Intel, and Apple Silicon** GPUs. And it knows the difference between a dedicated GPU and unified memory — because a MacBook with 32GB unified memory can run models that a Windows PC with 32GB RAM and no GPU cannot.
 
 ## Quick Start
 
@@ -25,24 +24,26 @@ pip install localmind
 lm doctor
 ```
 
-That's it. The `doctor` command runs a full diagnostic — hardware scan, tier classification, warnings, and model recommendations in a single report.
+One command. You get your hardware scan, tier classification, warnings about bottlenecks, and model recommendations. That's it.
 
 ## Commands at a Glance
 
-| Command | Description |
+| Command | What it does |
 |---|---|
-| `lm hardware` | Display detailed hardware information (CPU, RAM, GPU, disk) |
-| `lm recommend` | Classify your machine and show the recommended parameter size range |
-| `lm recommend <task>` | Suggest specific models for `coding`, `writing`, or `reasoning` |
-| `lm doctor` | Full diagnostic: hardware + tier + warnings + recommendations |
-| `lm search <query>` | Search the Ollama model library by keyword |
-| `lm info <model>` | Show metadata of a locally pulled Ollama model |
-| `lm download <model>` | Pull a model from Ollama (auto-installs Ollama if missing) |
-| `lm help` | Print detailed help with examples |
+| `lm hardware` | Scan your CPU, RAM, GPU (with VRAM), and disk |
+| `lm recommend` | See your tier and what model sizes fit |
+| `lm recommend coding` | Models good at code for your hardware |
+| `lm recommend writing` | Models good at writing for your hardware |
+| `lm recommend reasoning` | Models good at logic for your hardware |
+| `lm doctor` | Full diagnostic — everything in one report |
+| `lm search <query>` | Search the Ollama library |
+| `lm info <model>` | Show metadata for a downloaded model |
+| `lm download <model>` | Pull a model (auto-installs Ollama if needed) |
+| `lm help` | Detailed help with examples |
 
-All commands work with both `localmind` and the shorter `lm` alias.
+All commands work with `lm` (short) or `localmind` (long).
 
-## Next Steps
+## What's Next?
 
 <div class="grid cards" markdown>
 
@@ -50,7 +51,7 @@ All commands work with both `localmind` and the shorter `lm` alias.
 
     ---
 
-    Prerequisites, pip install, source install, and verification.
+    How to install from PyPI or source, verify it works, and set up Ollama.
 
     [:octicons-arrow-right-24: Installation guide](installation.md)
 
@@ -58,7 +59,7 @@ All commands work with both `localmind` and the shorter `lm` alias.
 
     ---
 
-    Detailed walkthrough for every command with examples and output.
+    Every command explained with real examples and output walkthroughs.
 
     [:octicons-arrow-right-24: Usage guide](usage.md)
 
@@ -66,12 +67,20 @@ All commands work with both `localmind` and the shorter `lm` alias.
 
     ---
 
-    How hardware detection, tier classification, and recommendations work under the hood.
+    How GPU detection works across platforms, how the classifier handles unified memory, and how recommendations are generated.
 
     [:octicons-arrow-right-24: Features & Architecture](features.md)
+
+-   :material-wrench: &nbsp; __Troubleshooting__
+
+    ---
+
+    Common issues, error messages, and how to fix them.
+
+    [:octicons-arrow-right-24: Troubleshooting](troubleshooting.md)
 
 </div>
 
 ---
 
-*Made with LocalMind — because choosing a model shouldn't require a PhD in hardware specs.*
+*LocalMind — because choosing a model shouldn't require a PhD in hardware specs.*

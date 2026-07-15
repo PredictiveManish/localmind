@@ -15,6 +15,10 @@ from .classifier import classify_machine
 from .recommendations import general_recommendation, task_recommendations
 from .doctor import generate_doctor_report
 from .ollama_api import search_ollama_library, show_model_info, pull_model
+from .chat import chat as chat_cmd
+from .compare import compare_models
+from .health import health_check
+from .model_mgmt import list_models, delete_model_cmd, find_fitting_models, show_disk_usage, show_model_fit
 
 app = typer.Typer(
     help="LocalMind – find the best local AI models for your hardware.",
@@ -54,25 +58,6 @@ When you want to see exactly what hardware you're working with before choosing a
 
 **Example:**  
 localmind hardware
-
----
-
-### `localmind recommend` (or `lm recommend`)
-
-**What it does:**  
-Analyzes your hardware and classifies your machine into a tier:
-- **Tiny** – very limited hardware (Raspberry Pi, old laptops)
-- **Entry** – basic machines (8GB RAM, integrated graphics)
-- **Midrange** – decent setups (16GB RAM, entry-level GPU)
-- **High-End** – powerful workstations (32GB+ RAM, 8GB+ VRAM)
-- **Enthusiast** – top-tier rigs (64GB+ RAM, 16GB+ VRAM)
-
-Then recommends a **parameter size range** (e.g., 7B-8B) that should run comfortably.
-
-**When to use it:**  
-As a first step to understand what class of models your hardware can handle.
-
-**Example:**  
 
 ---
 
@@ -389,6 +374,102 @@ def download(model: str):
     """
     console.print(f"Pulling model [bold]{model}[/bold]...")
     pull_model(model)
+
+
+# ──────────────────────────────────────────────────────────────
+# Chat command
+# ──────────────────────────────────────────────────────────────
+@app.command()
+def chat(
+    model_name: str = typer.Argument(..., help="Model to chat with, e.g. llama3:8b"),
+    system: Optional[str] = typer.Option(None, "--system", "-s", help="System prompt to set model behavior"),
+    temperature: Optional[float] = typer.Option(None, "--temperature", "-t", help="Creativity: 0.0 = deterministic, 1.0 = creative"),
+    top_k: Optional[int] = typer.Option(None, "--top-k", "-k", help="Consider only top K tokens"),
+    top_p: Optional[float] = typer.Option(None, "--top-p", "-p", help="Nucleus sampling probability"),
+    num_ctx: Optional[int] = typer.Option(None, "--num-ctx", help="Context window size in tokens"),
+    show_vram: bool = typer.Option(False, "--show-vram", "-v", help="Show VRAM estimate before starting"),
+):
+    """
+    Start an interactive chat session with an Ollama model.
+    
+    Features:
+    - Streaming output (words appear as they're generated)
+    - Multi-turn conversation with history
+    - System prompts (set a persona)
+    - Parameter controls (temperature, top_k, top_p, num_ctx)
+    - Model switching mid-conversation (/model <name>)
+    - Session commands: /quit, /history, /vram
+    """
+    chat_cmd(
+        model_name=model_name,
+        system=system,
+        temperature=temperature,
+        top_k=top_k,
+        top_p=top_p,
+        num_ctx=num_ctx,
+        show_vram=show_vram,
+    )
+
+
+# ──────────────────────────────────────────────────────────────
+# Compare command
+# ──────────────────────────────────────────────────────────────
+@app.command()
+def compare(model_a: str = typer.Argument(..., help="First model to compare, e.g. llama3:8b"),
+            model_b: str = typer.Argument(..., help="Second model to compare, e.g. mistral:7b")):
+    """
+    Compare two models side by side.
+    
+    Shows parameter count, best-fit quantization, disk size, VRAM/RAM needs,
+    whether they fit your hardware, popularity, local status, and recommended task.
+    """
+    compare_models(model_a, model_b)
+
+
+# ──────────────────────────────────────────────────────────────
+# Health command
+# ──────────────────────────────────────────────────────────────
+@app.command()
+def health(verbose: bool = typer.Option(False, "--verbose", "-V", help="Show detailed hardware and model info")):
+    """
+    Check Ollama server health.
+    
+    Shows whether Ollama is running, version, local and running models,
+    VRAM usage, and recommendations.
+    """
+    health_check(verbose=verbose)
+
+
+# ──────────────────────────────────────────────────────────────
+# Models subcommand group
+# ──────────────────────────────────────────────────────────────
+models_app = typer.Typer(help="Manage locally pulled Ollama models.")
+app.add_typer(models_app, name="models")
+
+
+@models_app.command()
+def list_models_cmd(details: bool = typer.Option(False, "--details", "-d", help="Show additional model details")):
+    """List all locally pulled models with sizes and quantization."""
+    list_models(show_details=details)
+
+
+@models_app.command()
+def delete_model(model_name: str = typer.Argument(..., help="Model to delete (name or prefix)"),
+                 force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation prompt")):
+    """Delete a local model and free disk space."""
+    delete_model_cmd(model_name=model_name, force=force)
+
+
+@models_app.command()
+def fit():
+    """Show which of your local models fit your hardware."""
+    find_fitting_models()
+
+
+@models_app.command()
+def disk():
+    """Show disk usage breakdown by model."""
+    show_disk_usage()
 
 
 if __name__ == "__main__":

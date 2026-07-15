@@ -21,8 +21,7 @@ def classify_machine(hw: HardwareReport) -> MachineClass:
         for gpu in hw.gpus:
             if gpu.is_unified_memory:
                 has_unified_memory = True
-                # For unified memory, GPU can access all system RAM
-                vram_gb = ram_gb
+                vram_gb += gpu.vram_mb / 1024.0
             else:
                 vram_gb += gpu.vram_mb / 1024.0
 

@@ -39,9 +39,11 @@ markdown_extensions:
   - pymdownx.snippets
   - toc:
       permalink: true
+  - mermaid2
 
 nav:
   - Home: index.md
   - Installation: installation.md
   - Usage Guide: usage.md
   - Features & Architecture: features.md
+  - Troubleshooting: troubleshooting.md
