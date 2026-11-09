@@ -80,6 +80,10 @@ def estimate_vram(model_name: str, quantization: Optional[str] = None,
     """
     # Extract parameter count from model name (e.g., "llama3:8b" → 8.0)
     params_b = _extract_params(model_name)
+    if params_b <= 0:
+        # Without a parameter count every number below would be invented; an
+        # empty result is more honest than a plausible-looking 0.7 GB.
+        return []
 
     # Detect model family from name
     family = _detect_family(model_name)
@@ -92,8 +96,10 @@ def estimate_vram(model_name: str, quantization: Optional[str] = None,
             continue
 
         multiplier = QUANT_MULTIPLIERS[quant]
-        # Base model size (weights only)
-        weight_gb = params_b * multiplier / 1000.0  # convert to GB
+        # Base model size (weights only).
+        # params_b is in billions and multiplier is bytes per parameter, so the
+        # product is already in GB: 8e9 params x 0.55 bytes = 4.4e9 bytes = 4.4 GB.
+        weight_gb = params_b * multiplier
 
         # Context/KV cache overhead scales with context length and layers
         # Rough estimate: overhead ≈ base_overhead × (context / default_context)
@@ -212,15 +218,6 @@ def _extract_params(model_name: str) -> float:
         "gemma:2b" → 2.0
     """
     import re
-    # Try to find N.b pattern
-    match = re.search(r':(\d+\.?\d*)b', model_name, re.IGNORECASE)
-    if match:
-        return float(match.group(1))
-
-    # Handle MoE models like "mixtral:8x7b"
-    match = re.search(r':(\d+)x(\d+)b', model_name, re.IGNORECASE)
-    if match:
-        return float(match.group(1)) * float(match.group(2))
 
     # Known model mappings for names without explicit param count
     known_params = {
@@ -255,9 +252,20 @@ def _extract_params(model_name: str) -> float:
         "llava": 7.0,
     }
 
-    # Try exact match first
+    # Known models first: a MoE tag cannot be multiplied out (mixtral:8x7b is
+    # 46.7B total parameters, not 8 x 7 = 56B), so an explicit table wins.
     if model_name in known_params:
         return known_params[model_name]
+
+    # Explicit size tag, e.g. "llama3:8b" or "qwen:0.5b"
+    match = re.search(r':(\d+\.?\d*)b', model_name, re.IGNORECASE)
+    if match:
+        return float(match.group(1))
+
+    # MoE tag, e.g. "mixtral:8x7b" for models not in the table
+    match = re.search(r':(\d+)x(\d+)b', model_name, re.IGNORECASE)
+    if match:
+        return float(match.group(1)) * float(match.group(2))
 
     # Try prefix match
     for name, params in known_params.items():
